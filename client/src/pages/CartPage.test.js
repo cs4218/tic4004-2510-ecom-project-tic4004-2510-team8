@@ -12,6 +12,8 @@ import { describe } from 'node:test';
 jest.mock('../context/auth');
 jest.mock('../context/cart');
 jest.mock('../context/search');
+jest.mock('axios');
+
 
 Object.defineProperty(window, 'localStorage', {
     value: {
@@ -29,6 +31,10 @@ Object.defineProperty(window, 'localStorage', {
 describe('Cart Components using BVA', () => {
     beforeEach(() => {
         jest.clearAllMocks();
+        
+        // Suppress logs for those that are not part of test
+        jest.spyOn(console, 'error').mockImplementation(() => {});
+        jest.spyOn(console, 'log').mockImplementation(() => {});
 
         useAuth.mockReturnValue([
             {user: { name: 'Super User', address: 'NUS'}, token: 'testToken'},
