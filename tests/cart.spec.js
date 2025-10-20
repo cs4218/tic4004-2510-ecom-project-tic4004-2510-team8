@@ -1,25 +1,35 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Cart UI Tests', () => {
-    test('Add User Cart from Home Page', async({page}) => {
+
+    test.beforeEach(async ({page}) => {
         await page.goto('/', {waitUntil: 'domcontentloaded'});
+    })
 
-        //Verify item added to cart
+    test('Add item to cart from home page', async({page}) => {
+        // Arrange
         const addToCartButton = page.getByRole('button', { name: 'ADD TO CART' }).first();
-        await expect(addToCartButton).toBeVisible();
+        
+        // Act
         await addToCartButton.click();
+        
+        // Assert
         await expect(page.getByText(/Item Added to cart/i)).toBeVisible();
+    });
 
-        //Verify 1 item in cart
-        await page.getByRole('link', {name:'Cart'}).click()
+    test('Display correct cart details after adding item', async({page}) => {
+        // Arrange
+        await page.getByRole('button', { name: 'ADD TO CART' }).first().click();
+        
+        // Act
+        await page.getByRole('link', {name:'Cart'}).click();
         await page.waitForURL(/.*cart/, {waitUntil: 'domcontentloaded'});
-        await expect(page.getByText(/You Have 1 items in your cart/i)).toBeVisible();
-
-        //Verify item is available in cart
         const cartItems = page.locator('.card');
         const cartCount = await cartItems.count();
-        const itemCard = cartItems.first();
+        
+        // Assert
+        await expect(page.getByText(/You Have 1 items in your cart/i)).toBeVisible();
         expect(cartCount).toBe(1);
-        await expect(itemCard).toBeVisible();
-    })
-})
+        await expect(cartItems.first()).toBeVisible();
+    });
+});
