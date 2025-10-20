@@ -83,7 +83,7 @@ describe('Cart Components using BVA', () => {
             description: 'cat product description'
         };
         const mockSetCart = jest.fn()
-        useCart.mockReturnValue([[mockProduct],jest.fn()]);
+        useCart.mockReturnValue([[mockProduct],mockSetCart]);
 
         //Arrange
         const { getByText } = render(
@@ -97,7 +97,7 @@ describe('Cart Components using BVA', () => {
 
         //Assert
         expect(mockSetCart).toHaveBeenCalled();
-        expect(window.localStorage.setItem).toHaveBeenCalled('cart', JSON.stringify([]));
+        expect(window.localStorage.setItem).toHaveBeenCalledWith('cart', JSON.stringify([]));// Verify current cart is empty        
     })
 
 })
