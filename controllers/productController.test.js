@@ -1,5 +1,5 @@
 import { jest, describe, it, expect, beforeEach} from '@jest/globals';
-import {searchProductController, productFiltersController } from './productController.js'
+import { searchProductController } from './productController.js'
 import productModel from '../models/productModel.js';
 
 describe('Product Controller Tests', () => {
@@ -34,6 +34,48 @@ describe('Product Controller Tests', () => {
                 { _id: '2', name: 'Laptop Pro', description: 'Professional laptop', price: 1500 }    
             ];
             const keyword = 'laptop'
+
+            req.params = {keyword: keyword};
+            productModel.find.mockReturnValue({select: jest.fn().mockResolvedValue(mockProducts)});
+
+            //Act
+            await searchProductController(req,res);
+
+            //Assert
+            expect(productModel.find).toHaveBeenCalledWith({
+                $or: [
+                    { name: { $regex: keyword, $options: 'i' } },
+                    { description: { $regex: keyword, $options: 'i' } }
+                  ]
+            })
+            expect(res.json).toHaveBeenCalledWith(mockProducts)
+        })
+
+        it('Valid String with non-matching results, return empty array', async() => {
+            //Arrange
+            const mockProducts = [];
+            const keyword = 'random!@#$%^&*('
+
+            req.params = {keyword: keyword};
+            productModel.find.mockReturnValue({select: jest.fn().mockResolvedValue(mockProducts)});
+
+            //Act
+            await searchProductController(req,res);
+
+            //Assert
+            expect(productModel.find).toHaveBeenCalledWith({
+                $or: [
+                    { name: { $regex: keyword, $options: 'i' } },
+                    { description: { $regex: keyword, $options: 'i' } }
+                  ]
+            })
+            expect(res.json).toHaveBeenCalledWith(mockProducts)
+        })
+
+        it('Empty Input, return empty array, may require validation checks on controller', async() => {
+            //Arrange
+            const mockProducts = [];
+            const keyword = ''
 
             req.params = {keyword: keyword};
             productModel.find.mockReturnValue({select: jest.fn().mockResolvedValue(mockProducts)});

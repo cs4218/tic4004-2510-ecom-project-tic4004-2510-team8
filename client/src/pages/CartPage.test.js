@@ -38,15 +38,66 @@ describe('Cart Components using BVA', () => {
     })
 
     it('Empty cart, should display empty cart when no item', () => {
+        //Arrange
         useCart.mockReturnValue([[], jest.fn()]);
 
+        //Act
         const { getByText } = render(
             <MemoryRouter>
             <CartPage/>
             </MemoryRouter>
-        )
+        );
 
+        //Assert
         expect(getByText(/your cart is empty/i)).toBeInTheDocument();
+    })
+
+    it('An item in the cart, display cart with one item when product is added', () => {
+        //Arrange
+        const mockProduct = {
+            _id: '123',
+            name: 'catProduct',
+            price: 100,
+            description: 'cat product description'
+        };
+        useCart.mockReturnValue([[mockProduct],jest.fn()]);
+
+        //Arrange
+        const { getByText } = render(
+            <MemoryRouter>
+                <CartPage/>
+            </MemoryRouter>
+        );
+
+        //Assert
+        expect(getByText(/catProduct/i)).toBeInTheDocument();
+        expect(getByText(/Price : 100/i)).toBeInTheDocument();
+    })
+
+    it('Remove an item from the cart,should call remove function when remove button is clicked', () => {
+        //Arrange
+        const mockProduct = {
+            _id: '123',
+            name: 'catProduct',
+            price: 100,
+            description: 'cat product description'
+        };
+        const mockSetCart = jest.fn()
+        useCart.mockReturnValue([[mockProduct],jest.fn()]);
+
+        //Arrange
+        const { getByText } = render(
+            <MemoryRouter>
+                <CartPage/>
+            </MemoryRouter>
+        );
+
+        const removeButton = getByText('Remove');
+        fireEvent.click(removeButton)
+
+        //Assert
+        expect(mockSetCart).toHaveBeenCalled();
+        expect(window.localStorage.setItem).toHaveBeenCalled('cart', JSON.stringify([]));
     })
 
 })
